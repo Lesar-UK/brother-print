@@ -16,9 +16,22 @@
         This project can be used to test out the functionality of your plugin. Nothing in the
         <em>example-app/</em> folder will be published to npm when using this template, so you can create away!
       </p>
-      <label for="echoInput">Echo Text:</label>
-      <input type="text" id="echoInput" name="echoInput" value="Hello World!" />
-      <button onclick="testEcho()">Click Me!</button>
+      <label for="echoInput">Printer:</label>
+      <input type="text" id="echoInput" name="echoInput" value="10.111.0.62" placeholder="Printer Identifier" />
+      <select id="printMethod" name="printMethod">
+        <option value="wifi" selected>Wifi</option>
+        <option value="bluetooth">Bluetooth</option>
+        </select>
+      <button onclick="base64Print()">Click Me!</button>
+
+      <hr>
+      <button onclick="searchWifiPrinters()">Check WIFI Printers (Console Log)!</button>
+
+      <hr>
+      <button onclick="searchBluetoothPrinters()">Check Bluetooth Printers (Console Log)!</button>
+
+      <hr>
+      <button onclick="checkPrinterStatus()">Check Printer Status!</button>
     </main>
 
     <script src="./js/example.js" type="module"></script>
