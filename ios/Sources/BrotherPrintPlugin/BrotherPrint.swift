@@ -62,10 +62,11 @@ import Capacitor
 
         // Send the print job
         let printError = printerDriver.printImage(with: cgImage, settings: printSettings)
+
         if printError.code != .noError {
-            call.reject("Error - Print Image: \(printError.code)")
+            call.reject(printError.errorDescription)
         } else {
-            call.resolve(["message": "Success - Print Image"])
+            call.resolve(["message": "Success"])
         }
     }
 
