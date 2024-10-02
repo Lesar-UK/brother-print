@@ -17,11 +17,6 @@ import Capacitor
             return
         }
 
-        guard let labelType = call.getInt("labelType") else {
-            call.reject("Must provide a valid label type")
-            return
-        }
-
         guard let base64Image = call.getString("base64Image") else {
             call.reject("Must provide a base64 string")
             return
@@ -48,8 +43,18 @@ import Capacitor
             return
         }
 
+        // Get the label size
+        var isSuccess: Bool = false
+        let labelSizeResult = printerStatus.mediaInfo?.getQLLabelSize(&isSuccess)
+
+        // Safely unwrap labelSizeResult
+        guard isSuccess, let labelSize = labelSizeResult else {
+            call.reject("Error - Unable to retrieve label size from the printer")
+            return
+        }
+
         // Determine printer model and configure print settings
-        guard let printSettings = configurePrintSettings(for: printerStatus.model, labelType: labelType) else {
+        guard let printSettings = configurePrintSettings(for: printerStatus.model, labelType: labelSize) else {
             call.reject("Unsupported printer model or label type")
             return
         }
@@ -151,37 +156,16 @@ import Capacitor
     }
 
     // Helper to configure print settings based on printer model
-    private func configurePrintSettings(for model: BRLMPrinterModel, labelType: Int) -> BRLMPrintSettingsProtocol? {
+    private func configurePrintSettings(for model: BRLMPrinterModel, labelType: BRLMQLPrintSettingsLabelSize) -> BRLMPrintSettingsProtocol? {
         switch model {
         case .QL_820NWB, .QL_810W:
             let settings = BRLMQLPrintSettings(defaultPrintSettingsWith: model)
-
-            // Map the label type to the correct label size
-            if let labelSize = mapLabelTypeToSize(labelType) {
-                settings!.labelSize = labelSize
-            } else {
-                return nil  // Invalid label type
-            }
-
+            settings!.labelSize = labelType
             settings!.autoCut = true
             settings!.printOrientation = BRLMPrintSettingsOrientation.landscape
             settings!.halftone = BRLMPrintSettingsHalftone.errorDiffusion
             settings!.printQuality = BRLMPrintSettingsPrintQuality.best
             return settings
-        default:
-            return nil
-        }
-    }
-
-    // Get the label type
-    private func mapLabelTypeToSize(_ labelType: Int) -> BRLMQLPrintSettingsLabelSize? {
-        switch labelType {
-        case 16:
-            return .rollW62  // 62mm Continous (Black)
-        case 18:
-            return .rollW62RB  // 62mm Continous (Red/Black)
-        case 62100:
-            return .dieCutW62H100  // 62mm x 100mm Pre-printed Roll
         default:
             return nil
         }
