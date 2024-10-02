@@ -2,6 +2,10 @@
 
 Print to a Brother label printer via the Brother SDK using Capacitor.
 
+```bash
+
+```
+
 ## Install
 
 ```bash
@@ -13,10 +17,10 @@ npx cap sync
 
 <docgen-index>
 
-* [`searchWifiPrinters()`](#searchwifiprinters)
-* [`searchBluetoothPrinters()`](#searchbluetoothprinters)
-* [`base64Print()`](#base64print)
-* [`checkPrinterStatus()`](#checkprinterstatus)
+- [`searchWifiPrinters()`](#searchwifiprinters)
+- [`searchBluetoothPrinters()`](#searchbluetoothprinters)
+- [`base64Print()`](#base64print)
+- [`checkPrinterStatus()`](#checkprinterstatus)
 
 </docgen-index>
 
@@ -31,8 +35,7 @@ searchWifiPrinters() => Promise<{ printers: string[]; }>
 
 **Returns:** <code>Promise&lt;{ printers: string[]; }&gt;</code>
 
---------------------
-
+---
 
 ### searchBluetoothPrinters()
 
@@ -42,8 +45,7 @@ searchBluetoothPrinters() => Promise<{ printers: string[]; }>
 
 **Returns:** <code>Promise&lt;{ printers: string[]; }&gt;</code>
 
---------------------
-
+---
 
 ### base64Print()
 
@@ -53,8 +55,7 @@ base64Print() => Promise<{ value: string; }>
 
 **Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
 
---------------------
-
+---
 
 ### checkPrinterStatus()
 
@@ -64,6 +65,6 @@ checkPrinterStatus() => Promise<{ status: string; }>
 
 **Returns:** <code>Promise&lt;{ status: string; }&gt;</code>
 
---------------------
+---
 
 </docgen-api>

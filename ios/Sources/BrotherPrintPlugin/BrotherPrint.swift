@@ -6,6 +6,7 @@ import Capacitor
 
     // Function to print a base64 image
     @objc public func base64Print(_ call: CAPPluginCall) {
+
         guard let printMethod = call.getString("printMethod") else {
             call.reject("Must provide a print method, either 'bluetooth' or 'wifi'")
             return
@@ -13,6 +14,11 @@ import Capacitor
 
         guard let deviceIdentifier = call.getString("deviceIdentifier") else {
             call.reject("Must provide an IP address or Bluetooth serial number")
+            return
+        }
+
+        guard let labelType = call.getInt("labelType") else {
+            call.reject("Must provide a valid label type")
             return
         }
 
@@ -43,8 +49,8 @@ import Capacitor
         }
 
         // Determine printer model and configure print settings
-        guard let printSettings = configurePrintSettings(for: printerStatus.model) else {
-            call.reject("Unsupported printer model: \(printerStatus.model.rawValue)")
+        guard let printSettings = configurePrintSettings(for: printerStatus.model, labelType: labelType) else {
+            call.reject("Unsupported printer model or label type")
             return
         }
 
@@ -68,9 +74,9 @@ import Capacitor
         let searchOption = BRLMNetworkSearchOption()
         searchOption.searchDuration = 5
         searchOption.printerList = ["QL-820NWB", "QL-810W"]
-        
+
         var resultList: [String] = []
-        
+
         BRLMPrinterSearcher.startNetworkSearch(searchOption) { channel in
             resultList.append(channel.channelInfo)
         }
@@ -82,7 +88,7 @@ import Capacitor
     @objc public func searchBluetoothPrinters(_ call: CAPPluginCall) {
         let channels = BRLMPrinterSearcher.startBluetoothSearch().channels
         var resultList: [String] = []
-        
+
         channels.forEach { channel in
             if let extraInfo = channel.extraInfo {
                 resultList.append(extraInfo[BRLMChannelExtraInfoKeySerialNumber] as! String)
@@ -144,15 +150,37 @@ import Capacitor
     }
 
     // Helper to configure print settings based on printer model
-    private func configurePrintSettings(for model: BRLMPrinterModel) -> BRLMPrintSettingsProtocol? {
+    private func configurePrintSettings(for model: BRLMPrinterModel, labelType: Int) -> BRLMPrintSettingsProtocol? {
         switch model {
         case .QL_820NWB, .QL_810W:
             let settings = BRLMQLPrintSettings(defaultPrintSettingsWith: model)
-            settings?.labelSize = BRLMQLPrintSettingsLabelSize.rollW62
-            settings?.autoCut = true
-            settings?.printOrientation = .landscape
-            settings?.halftone = .errorDiffusion
+
+            // Map the label type to the correct label size
+            if let labelSize = mapLabelTypeToSize(labelType) {
+                settings!.labelSize = labelSize
+            } else {
+                return nil  // Invalid label type
+            }
+
+            settings!.autoCut = true
+            settings!.printOrientation = BRLMPrintSettingsOrientation.landscape
+            settings!.halftone = BRLMPrintSettingsHalftone.errorDiffusion
+            settings!.printQuality = BRLMPrintSettingsPrintQuality.best
             return settings
+        default:
+            return nil
+        }
+    }
+
+    // Get the label type
+    private func mapLabelTypeToSize(_ labelType: Int) -> BRLMQLPrintSettingsLabelSize? {
+        switch labelType {
+        case 16:
+            return .rollW62  // 62mm Continous (Black)
+        case 18:
+            return .rollW62RB  // 62mm Continous (Red/Black)
+        case 62100:
+            return .dieCutW62H100  // 62mm x 100mm Pre-printed Roll
         default:
             return nil
         }
