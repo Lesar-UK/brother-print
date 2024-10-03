@@ -13,13 +13,13 @@ export class BrotherPrintWeb extends WebPlugin implements BrotherPrintPlugin {
     return { printers: [] }; // Return an empty list for web
   }
 
-  async base64Print(): Promise<{ value: string }> {
+  async base64Print(): Promise<{ message: string }> {
     console.warn('base64Print is not available on the web');
-    return { value: 'base64Print' }; // Return an empty list
+    return { message: 'Not available on web' }; // Return an default message
   }
 
-  async checkPrinterStatus(): Promise<{ status: string }> {
+  async checkPrinterStatus(): Promise<{ status: string[] }> {
     console.warn('checkPrinterStatus is not available on the web');
-    return { status: 'checkPrinterStatus' }; // Return an empty list
+    return { status: [] }; // Return an empty list
   }
 }
