@@ -1,6 +1,10 @@
-# brother-print for capacitor
+# brother-print for capacitor and ionic.
 
-Print to a Brother label printer via the Brother SDK using Capacitor.
+Print to a Brother label printer via the Brother SDK using Capacitor and Ionic.
+
+At the moment this plugin is a personal use plugin for my own requirements, but feel free to use.
+
+At present it is only compatible with QL-820NWB and QL-810W label printers.
 
 ## Install
 
@@ -14,49 +18,49 @@ npx cap sync
 ### Searching connected Bluetooth printers
 
 ```bash
-   import { BrotherPrint } from 'brother-print'
+import { BrotherPrint } from 'brother-print'
 
-   async function searchBluetoothPrinters() {
-        try {
-            let { printers } = await BrotherPrint.searchBluetoothPrinters();
-            console.log('Found printers', printers);
-        } catch(error) {
-            console.log('Problem finding printers', error);
-        }
-   }
+async function searchBluetoothPrinters() {
+    try {
+        let { printers } = await BrotherPrint.searchBluetoothPrinters();
+        console.log('Found printers', printers);
+    } catch(error) {
+        console.log('Problem finding printers', error);
+    }
+}
 ```
 
 ### Searching available Wifi printers
 
 ```bash
-   import { BrotherPrint } from 'brother-print'
+import { BrotherPrint } from 'brother-print'
 
-   async function searchWifiPrinters() {
-        try {
-            let { printers } = await BrotherPrint.searchWifiPrinters();
-            console.log('Found printers', printers);
-        } catch(error) {
-            console.log('Problem finding printers', error);
-        }
-   }
+async function searchWifiPrinters() {
+    try {
+        let { printers } = await BrotherPrint.searchWifiPrinters();
+        console.log('Found printers', printers);
+    } catch(error) {
+        console.log('Problem finding printers', error);
+    }
+}
 ```
 
 ### Send a base64 image to a printer
 
 ```bash
-   import { BrotherPrint } from 'brother-print'
+import { BrotherPrint } from 'brother-print'
 
-   async function printBase64Image() {
-        try {
-            let res = await BrotherPrint.base64Print({
-                printMethod: 'wifi', // wifi or bluetooth
-                deviceIdentifier: '10.111.0.10', // IP address for wifi or Serial number for bluetooth.
-                base64Image: 'base64 string' // Without data URI scheme i.e. data:image/png;base64,
-            });
-        } catch(error) {
-            console.log('Problem printing', error);
-        }
-   }
+async function printBase64Image() {
+    try {
+        let res = await BrotherPrint.base64Print({
+            printMethod: 'wifi', // wifi or bluetooth
+            deviceIdentifier: '10.111.0.10', // IP address for wifi or Serial number for bluetooth.
+            base64Image: 'base64 string' // Without data URI scheme i.e. data:image/png;base64,
+        });
+    } catch(error) {
+        console.log('Problem printing', error);
+    }
+}
 ```
 
 ## API
@@ -96,20 +100,20 @@ searchBluetoothPrinters() => Promise<{ printers: string[]; }>
 ### base64Print()
 
 ```typescript
-base64Print() => Promise<{ value: string; }>
+base64Print() => Promise<{ message: string; }>
 ```
 
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+**Returns:** <code>Promise&lt;{ message: string; }&gt;</code>
 
 ---
 
 ### checkPrinterStatus()
 
 ```typescript
-checkPrinterStatus() => Promise<{ status: string; }>
+checkPrinterStatus() => Promise<{ status: string[]; }>
 ```
 
-**Returns:** <code>Promise&lt;{ status: string; }&gt;</code>
+**Returns:** <code>Promise&lt;{ status: string[]; }&gt;</code>
 
 ---
 
