@@ -6,6 +6,13 @@ At the moment this plugin is a personal use plugin for my own requirements, but 
 
 At present it is only compatible with QL-820NWB and QL-810W label printers.
 
+## Things to know
+
+- Currently only supporting iOS at the moment
+- Currently only prints to QL-820NWB & QL-810W
+- If you are using Bluetooth, ensure you include the relevant info.plist values below
+- If you are using Wifi, ensure you include the relevant info.plist values below
+
 ## Install
 
 ```bash
@@ -61,6 +68,44 @@ async function printBase64Image() {
         console.log('Problem printing', error);
     }
 }
+```
+
+### If you are using Bluetooth
+
+Add the following to your info.plist.
+
+If you are submitting to the App Store you are required to get a Product Plan ID (PPID) from Brother. This For protyping and local development this is not needed.
+
+Get your PPID by visiting: https://secure6.brother.co.jp/mfi/MFiInputForm.aspx
+
+```bash
+<key>UISupportedExternalAccessoryProtocols</key>
+<array>
+    <string>com.brother.ptcbp</string>
+</array>
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>Discover compatible Bluetooth printers</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>This app uses Bluetooth to find and communicate with printers.</string>
+```
+
+With Bluetooth, you will also need to register with Brother directly. Fill in this form:
+
+### If you are using Wifi
+
+Add the following to your info.plist
+
+```bash
+<key>NSLocalNetworkUsageDescription</key>
+<string>The local network is needed to find printers</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>The local network is needed to find printers</string>
+<key>NSBonjourServices</key>
+<array>
+    <string>_pdl-datastream._tcp</string>
+    <string>_printer._tcp</string>
+    <string>_ipp._tcp</string>
+</array>
 ```
 
 ## API
