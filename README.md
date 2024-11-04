@@ -72,6 +72,25 @@ async function printBase64Image() {
 }
 ```
 
+### Print a Base64 PDF
+
+```javascript
+import { BrotherPrint } from 'brother-print';
+
+async function printBase64PDF() {
+  try {
+    const res = await BrotherPrint.base64PDFPrint({
+      printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
+      deviceIdentifier: '10.111.0.10', // IP address for WiFi or Serial number for Bluetooth
+      base64PDFPrint: 'base64string', // Exclude 'data:image/png;base64,' prefix
+    });
+    console.log('Print success:', res);
+  } catch (error) {
+    console.error('Error printing:', error);
+  }
+}
+```
+
 ## Bluetooth Setup
 
 For Bluetooth functionality, add the following keys to your `Info.plist` file:
