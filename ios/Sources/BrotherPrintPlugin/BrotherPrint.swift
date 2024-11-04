@@ -75,6 +75,87 @@ import Capacitor
         }
     }
 
+    // Function to print a base64 PDF
+    @objc public func base64PDFPrint(_ call: CAPPluginCall) {
+        guard let printMethod = call.getString("printMethod") else {
+            call.reject("Must provide a print method, either 'bluetooth' or 'wifi'")
+            return
+        }
+
+        guard let deviceIdentifier = call.getString("deviceIdentifier") else {
+            call.reject("Must provide an IP address or Bluetooth serial number")
+            return
+        }
+
+        guard let base64PDF = call.getString("base64PDFPrint") else {
+            call.reject("Must provide a base64-encoded PDF string")
+            return
+        }
+
+        // Decode the base64 PDF string to Data
+        guard let pdfData = Data(base64Encoded: base64PDF) else {
+            call.reject("Error - Unable to decode base64 PDF")
+            return
+        }
+
+        // Create a temporary file URL to save the PDF
+        let tempDirectory = FileManager.default.temporaryDirectory
+        let pdfFileURL = tempDirectory.appendingPathComponent("temp.pdf")
+
+        // Write the PDF data to the temporary file
+        do {
+            try pdfData.write(to: pdfFileURL)
+        } catch {
+            call.reject("Error - Unable to write PDF to temporary file: \(error.localizedDescription)")
+            return
+        }
+
+        // Open a channel based on the print method
+        guard let channel = getPrintChannel(printMethod: printMethod, deviceIdentifier: deviceIdentifier, call: call) else { return }
+
+        // Open printer connection
+        let generateResult = BRLMPrinterDriverGenerator.open(channel)
+        guard generateResult.error.code == BRLMOpenChannelErrorCode.noError,
+              let printerDriver = generateResult.driver else {
+            call.reject("Error - Open Channel: \(generateResult.error.code)")
+            return
+        }
+        defer {
+            printerDriver.closeChannel()
+        }
+
+        // Get printer status
+        let statusResult = printerDriver.getPrinterStatus()
+        guard statusResult.error.code == .noError, let printerStatus = statusResult.status else {
+            call.reject("Unable to retrieve printer status: \(statusResult.error.code)")
+            return
+        }
+
+        // Get the label size
+        var isSuccess: Bool = false
+        let labelSizeResult = printerStatus.mediaInfo?.getQLLabelSize(&isSuccess)
+
+        // Safely unwrap labelSizeResult
+        guard isSuccess, let labelSize = labelSizeResult else {
+            call.reject("Error - Unable to retrieve label size from the printer")
+            return
+        }
+
+        // Determine printer model and configure print settings
+        guard let printSettings = configurePrintSettings(for: printerStatus.model, labelType: labelSize) else {
+            call.reject("Unsupported printer model or label type")
+            return
+        }
+
+        // Send the print job with the PDF URL
+        let printError = printerDriver.printPDF(with: pdfFileURL, settings: printSettings)
+        if printError.code != .noError {
+            call.reject(printError.errorDescription)
+        } else {
+            call.resolve(["message": "PDF printed successfully"])
+        }
+    }
+    
     // Function to search for WiFi printers
     @objc public func searchWifiPrinters(_ call: CAPPluginCall) {
         let searchOption = BRLMNetworkSearchOption()
