@@ -1,6 +1,6 @@
 {
   "name": "brother-print",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Print to a Brother label printer via the Brother SDK",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
