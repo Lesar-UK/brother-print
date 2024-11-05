@@ -5,7 +5,7 @@ import Capacitor
 @objc public class BrotherPrint: CAPPlugin {
 
     // Function to print a base64 image
-    @objc public func base64Print(_ call: CAPPluginCall) {
+    @objc public func printImage(_ call: CAPPluginCall) {
 
         guard let printMethod = call.getString("printMethod") else {
             call.reject("Must provide a print method, either 'bluetooth' or 'wifi'")
@@ -17,7 +17,7 @@ import Capacitor
             return
         }
 
-        guard let base64Image = call.getString("base64Image") else {
+        guard let base64Image = call.getString("base64String") else {
             call.reject("Must provide a base64 string")
             return
         }
@@ -76,7 +76,7 @@ import Capacitor
     }
 
     // Function to print a base64 PDF
-    @objc public func base64PDFPrint(_ call: CAPPluginCall) {
+    @objc public func printPDF(_ call: CAPPluginCall) {
         guard let printMethod = call.getString("printMethod") else {
             call.reject("Must provide a print method, either 'bluetooth' or 'wifi'")
             return
@@ -87,7 +87,7 @@ import Capacitor
             return
         }
 
-        guard let base64PDF = call.getString("base64PDFPrint") else {
+        guard let base64PDF = call.getString("base64String") else {
             call.reject("Must provide a base64-encoded PDF string")
             return
         }
@@ -155,7 +155,7 @@ import Capacitor
             call.resolve(["message": "PDF printed successfully"])
         }
     }
-    
+
     // Function to search for WiFi printers
     @objc public func searchWifiPrinters(_ call: CAPPluginCall) {
         let searchOption = BRLMNetworkSearchOption()

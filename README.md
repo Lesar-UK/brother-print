@@ -60,10 +60,10 @@ import { BrotherPrint } from 'brother-print';
 
 async function printBase64Image() {
   try {
-    const res = await BrotherPrint.base64Print({
+    const res = await BrotherPrint.printImage({
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
       deviceIdentifier: '10.111.0.10', // IP address for WiFi or Serial number for Bluetooth
-      base64Image: 'base64string', // Exclude 'data:image/png;base64,' prefix
+      base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
     });
     console.log('Print success:', res);
   } catch (error) {
@@ -79,10 +79,10 @@ import { BrotherPrint } from 'brother-print';
 
 async function printBase64PDF() {
   try {
-    const res = await BrotherPrint.base64PDFPrint({
+    const res = await BrotherPrint.printPDF({
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
       deviceIdentifier: '10.111.0.10', // IP address for WiFi or Serial number for Bluetooth
-      base64PDFPrint: 'base64string', // Exclude 'data:image/png;base64,' prefix
+      base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
     });
     console.log('Print success:', res);
   } catch (error) {
