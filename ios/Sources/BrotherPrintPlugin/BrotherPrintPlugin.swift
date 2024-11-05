@@ -15,8 +15,8 @@ public class BrotherPrintPlugin: CAPPlugin, CAPBridgedPlugin {
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "searchWifiPrinters", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "searchBluetoothPrinters", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "base64Print", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "base64PDFPrint", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "printImage", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "printPDF", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "checkPrinterStatus", returnType: CAPPluginReturnPromise)
     ]
 
@@ -32,12 +32,12 @@ public class BrotherPrintPlugin: CAPPlugin, CAPBridgedPlugin {
         implementation.searchBluetoothPrinters(call)
     }
 
-    @objc func base64Print(_ call: CAPPluginCall) {
-        implementation.base64Print(call)
+    @objc func printImage(_ call: CAPPluginCall) {
+        implementation.printImage(call)
     }
 
-    @objc func base64PDFPrint(_ call: CAPPluginCall) {
-        implementation.base64PDFPrint(call)
+    @objc func printPDF(_ call: CAPPluginCall) {
+        implementation.printPDF(call)
     }
 
     @objc func checkPrinterStatus(_ call: CAPPluginCall) {
