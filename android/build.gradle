@@ -17,6 +17,21 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def brotherMavenRepo = file('libs/maven')
+def brotherPrintLibrary = file('libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0/BrotherPrintLibrary-1.0.0.aar')
+
+rootProject.allprojects {
+    repositories {
+        maven {
+            url = brotherMavenRepo
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
+        }
+    }
+}
+
 android {
     namespace "dev.kieranbarlow.plugins.brotherprint"
     compileSdk project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 34
@@ -45,11 +60,24 @@ android {
 repositories {
     google()
     mavenCentral()
+    maven {
+        url = brotherMavenRepo
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
 }
 
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    if (!brotherPrintLibrary.exists()) {
+        throw new GradleException(
+            "BrotherPrintLibrary.aar is required. Copy Brother's Android SDK AAR to " +
+            "${brotherPrintLibrary} before building Android."
+        )
+    }
+
+    implementation "com.brother.sdk:BrotherPrintLibrary:1.0.0@aar"
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     testImplementation "junit:junit:$junitVersion"

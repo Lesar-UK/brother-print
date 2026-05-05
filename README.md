@@ -38,6 +38,8 @@ async function searchBluetoothPrinters() {
 }
 ```
 
+Use the returned value as `deviceIdentifier` for Bluetooth printing. iOS commonly returns the printer serial number, while Android commonly returns the Bluetooth MAC address.
+
 ### Search for WiFi Printers
 
 ```javascript
@@ -62,7 +64,7 @@ async function printBase64Image() {
   try {
     const res = await BrotherPrint.printImage({
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
-      deviceIdentifier: '10.111.0.10', // IP address for WiFi or Serial number for Bluetooth
+      deviceIdentifier: '10.111.0.10', // IP address for WiFi or value returned by searchBluetoothPrinters()
       base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
     });
     console.log('Print success:', res);
@@ -81,7 +83,7 @@ async function printBase64PDF() {
   try {
     const res = await BrotherPrint.printPDF({
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
-      deviceIdentifier: '10.111.0.10', // IP address for WiFi or Serial number for Bluetooth
+      deviceIdentifier: '10.111.0.10', // IP address for WiFi or value returned by searchBluetoothPrinters()
       base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
     });
     console.log('Print success:', res);
