@@ -28,6 +28,7 @@ import com.brother.sdk.lmprinter.PrinterStatus;
 import com.brother.sdk.lmprinter.setting.PrintImageSettings;
 import com.brother.sdk.lmprinter.setting.QLPrintSettings;
 import com.getcapacitor.JSArray;
+import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -97,7 +98,7 @@ public class BrotherPrintSDK {
 
     public String printPDF(Context context, PluginCall call) throws IOException {
         PrintJobSpec spec = buildSpec(call);
-        File pdfFile = writeTempFile(context, spec.base64String, "passprinter-", ".pdf");
+        File pdfFile = writeTempFile(context, spec.base64String, "brother-print-", ".pdf");
         try {
             return withDriver(spec, context, (driver) -> {
                 PrintError error = driver.printPDF(pdfFile.getAbsolutePath(), buildQlSettings(context, spec, driver, null));
@@ -109,7 +110,7 @@ public class BrotherPrintSDK {
         }
     }
 
-    public JSArray checkPrinterStatus(Context context, PluginCall call) {
+    public JSObject checkPrinterStatus(Context context, PluginCall call) {
         PrintJobSpec spec = buildSpec(call);
         return withDriver(spec, context, (driver) -> {
             GetStatusResult result = driver.getPrinterStatus();
@@ -120,23 +121,25 @@ public class BrotherPrintSDK {
                 }
             }
 
-            JSArray status = new JSArray();
+            JSObject status = new JSObject();
             PrinterStatus printerStatus = result.getPrinterStatus();
             if (printerStatus == null) {
                 return status;
             }
 
             if (printerStatus.getModel() != null) {
-                status.put("model:" + printerStatus.getModel().name());
+                status.put("model", printerStatus.getModel().name());
             }
             if (printerStatus.getErrorCode() != null) {
-                status.put("error:" + printerStatus.getErrorCode().name());
+                String statusCode = printerStatus.getErrorCode().name();
+                status.put("statusCode", statusCode);
+                status.put("statusMessage", getPrinterStatusMessage(statusCode));
             }
             if (printerStatus.getMediaInfo() != null) {
-                status.put("media:" + printerStatus.getMediaInfo().toString());
+                status.put("media", printerStatus.getMediaInfo().toString());
             }
             if (printerStatus.getBatteryStatus() != null) {
-                status.put("battery:" + printerStatus.getBatteryStatus().toString());
+                status.put("battery", printerStatus.getBatteryStatus().toString());
             }
 
             return status;
@@ -304,6 +307,14 @@ public class BrotherPrintSDK {
         throw new IllegalArgumentException("Bluetooth printer not found for identifier: " + deviceIdentifier);
     }
 
+    private String getPrinterStatusMessage(String statusCode) {
+        if ("NoError".equals(statusCode)) {
+            return "Ready";
+        }
+
+        return statusCode;
+    }
+
     private String getChannelExtraInfo(Channel channel, Channel.ExtraInfoKey key) {
         HashMap<Channel.ExtraInfoKey, String> extraInfo = channel.getExtraInfo();
         if (extraInfo == null) {
@@ -338,7 +349,7 @@ public class BrotherPrintSDK {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.FILTER_BITMAP_FLAG);
         canvas.drawBitmap(source, 0, 0, paint);
 
-        File file = File.createTempFile("passprinter-", ".png", context.getCacheDir());
+        File file = File.createTempFile("brother-print-", ".png", context.getCacheDir());
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             flattened.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             outputStream.flush();

@@ -15,19 +15,19 @@ export class BrotherPrintWeb extends WebPlugin implements BrotherPrintPlugin {
 
   async printImage(_options: PrintOptions): Promise<{ message: string }> {
     void _options;
-    console.warn('base64Print is not available on the web');
-    return { message: 'Not available on web' }; // Return an default message
+    console.warn('printImage is not available on the web');
+    return { message: 'Not available on web' }; // Return a default message
   }
 
   async printPDF(_options: PrintOptions): Promise<{ message: string }> {
     void _options;
-    console.warn('base64Print is not available on the web');
-    return { message: 'Not available on web' }; // Return an default message
+    console.warn('printPDF is not available on the web');
+    return { message: 'Not available on web' }; // Return a default message
   }
 
   async checkPrinterStatus(_options: Omit<PrintOptions, 'base64String'>): Promise<PrinterStatusResult> {
     void _options;
     console.warn('checkPrinterStatus is not available on the web');
-    return { status: [] }; // Return an empty list
+    return { status: {} }; // Return an empty status
   }
 }

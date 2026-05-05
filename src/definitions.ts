@@ -16,8 +16,16 @@ export interface PrintResult {
   message: string;
 }
 
+export interface PrinterStatus {
+  model?: string;
+  statusCode?: number | string;
+  statusMessage?: string;
+  media?: string;
+  battery?: string;
+}
+
 export interface PrinterStatusResult {
-  status: string[];
+  status: PrinterStatus;
 }
 
 export interface BrotherPrintPlugin {

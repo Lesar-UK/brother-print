@@ -20,18 +20,6 @@ apply plugin: 'com.android.library'
 def brotherMavenRepo = file('libs/maven')
 def brotherPrintLibrary = file('libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0/BrotherPrintLibrary-1.0.0.aar')
 
-rootProject.allprojects {
-    repositories {
-        maven {
-            url = brotherMavenRepo
-            metadataSources {
-                mavenPom()
-                artifact()
-            }
-        }
-    }
-}
-
 android {
     namespace "dev.kieranbarlow.plugins.brotherprint"
     compileSdk project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 34
