@@ -18,8 +18,44 @@ This plugin was developed for personal use, but feel free to use it if it fits y
 ## Installation
 
 ```bash
-npm install github:Lesar-UK/brother-print#v0.0.16
+npm install github:Lesar-UK/brother-print#0.0.16
 ```
+
+## iOS SDK Setup
+
+This package does not distribute Brother's proprietary iOS SDK. For Bluetooth Classic/MFi printers such as the QL-820NWB, Brother requires the `BT_Net` framework; the similarly named `Net` framework does not support this connection type.
+
+Before running `pod install` or syncing the iOS project:
+
+1. Download Brother Print SDK for iPhone/iPad 4.13.2 from the [Brother Developer Center](https://support.brother.com/g/s/es/dev/en/mobilesdk/download/index.html).
+2. Extract the download and locate exactly `libs/BT_Net/BRLMPrinterKit.xcframework`.
+3. Copy the framework into the installed package:
+
+```bash
+mkdir -p node_modules/brother-print/ios/Frameworks
+cp -R /path/to/bpsdki4132/libs/BT_Net/BRLMPrinterKit.xcframework \
+  node_modules/brother-print/ios/Frameworks/BRLMPrinterKit.xcframework
+```
+
+The final directory must be:
+
+```text
+node_modules/brother-print/ios/Frameworks/BRLMPrinterKit.xcframework/
+```
+
+Then sync the iOS project:
+
+```bash
+npx cap sync ios
+```
+
+The framework must be restored after deleting `node_modules`, running a clean `npm ci`, or upgrading this package. When developing this plugin directly, use the equivalent repository path:
+
+```text
+ios/Frameworks/BRLMPrinterKit.xcframework/
+```
+
+Do not use the SDK's `Net/BRLMPrinterKit.xcframework`; use the `BT_Net` build exactly.
 
 ## Android Setup
 
