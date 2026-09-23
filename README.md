@@ -4,6 +4,8 @@ Easily print to Brother label printers using the Brother SDK, integrated with Ca
 
 This plugin was developed for personal use, but feel free to use it if it fits your needs.
 
+This plugin uses Brother's official Print SDK 4.13.2 on both iOS and Android. The former unofficial `BRLMPrinterKit` CocoaPod dependency is no longer used.
+
 ## Compatibility
 
 - iOS and Android
