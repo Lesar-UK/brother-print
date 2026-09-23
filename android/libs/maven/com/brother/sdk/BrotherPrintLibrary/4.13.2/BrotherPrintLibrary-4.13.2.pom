@@ -5,6 +5,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.brother.sdk</groupId>
   <artifactId>BrotherPrintLibrary</artifactId>
-  <version>1.0.0</version>
+  <version>4.13.2</version>
   <packaging>aar</packaging>
 </project>

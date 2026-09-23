@@ -1,6 +1,6 @@
 {
   "name": "brother-print",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Print to a Brother label printer via the Brother SDK",
   "readme": "README.md",
   "main": "dist/plugin.cjs.js",
@@ -9,7 +9,7 @@
   "unpkg": "dist/plugin.js",
   "files": [
     "android/src/main/",
-    "android/libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0/BrotherPrintLibrary-1.0.0.pom",
+    "android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.pom",
     "android/build.gradle",
     "dist/",
     "ios/Sources",

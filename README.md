@@ -13,7 +13,7 @@ This plugin was developed for personal use, but feel free to use it if it fits y
 
 - For **iOS Bluetooth printing**, include the necessary `Info.plist` entries (see below).
 - For **iOS WiFi printing**, include the relevant `Info.plist` entries (see below).
-- For **Android**, Brother's proprietary Android SDK AAR is required at build time (see below).
+- For **Android**, Brother Print SDK 4.13.2 and Android 8.0 or later are required (see below).
 
 ## Installation
 
@@ -24,20 +24,29 @@ npx cap sync
 
 ## Android Setup
 
-This package does not distribute Brother's proprietary Android SDK. Before building Android, copy Brother's Android SDK AAR into this plugin's local Maven path:
+This package does not distribute Brother's proprietary Android SDK. The AAR cannot be restored from Git alone because Brother requires developers to accept its licence before downloading it.
+
+After a fresh clone or machine rebuild:
+
+1. Download Brother Print SDK for Android 4.13.2 from the Brother Developer Center.
+2. Extract the download and locate `libs/BrotherPrintLibrary.aar`.
+3. Copy it into this repository using:
 
 ```bash
-mkdir -p node_modules/brother-print/android/libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0
-cp /path/to/BrotherPrintLibrary.aar node_modules/brother-print/android/libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0/BrotherPrintLibrary-1.0.0.aar
-npx cap sync android
+mkdir -p android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2
+cp /path/to/BrotherPrintLibrary.aar \
+  android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.aar
 ```
 
-For local plugin development, use the same path under this repository:
+The final directory must contain both files:
 
-```bash
-mkdir -p android/libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0
-cp /path/to/BrotherPrintLibrary.aar android/libs/maven/com/brother/sdk/BrotherPrintLibrary/1.0.0/BrotherPrintLibrary-1.0.0.aar
+```text
+android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/
+├── BrotherPrintLibrary-4.13.2.aar
+└── BrotherPrintLibrary-4.13.2.pom
 ```
+
+The AAR is intentionally ignored by Git. Keep the original SDK download in approved private storage so a new development machine or CI environment can be restored without relying on this working copy.
 
 The Android plugin manifest declares the permissions required for WiFi and Bluetooth printing:
 
@@ -97,6 +106,7 @@ async function printBase64Image() {
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
       deviceIdentifier: '10.111.0.10', // IP address for WiFi or value returned by searchBluetoothPrinters()
       base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
+      // model: 'QL-810W', // Optional fallback; Android detects the connected model when available
     });
     console.log('Print success:', res);
   } catch (error) {
@@ -116,6 +126,7 @@ async function printBase64PDF() {
       printMethod: 'wifi', // Options: 'wifi' or 'bluetooth'
       deviceIdentifier: '10.111.0.10', // IP address for WiFi or value returned by searchBluetoothPrinters()
       base64String: 'base64string', // Exclude 'data:image/png;base64,' prefix
+      // model: 'QL-810W', // Optional fallback; Android detects the connected model when available
     });
     console.log('Print success:', res);
   } catch (error) {

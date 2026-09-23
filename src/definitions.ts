@@ -1,4 +1,5 @@
 export type BrotherPrintMethod = 'wifi' | 'bluetooth';
+export type BrotherPrinterModel = 'QL-810W' | 'QL-820NWB';
 
 export interface PrinterSearchResult {
   printers: string[];
@@ -8,7 +9,7 @@ export interface PrintOptions {
   printMethod: BrotherPrintMethod;
   deviceIdentifier: string;
   base64String: string;
-  model?: string;
+  model?: BrotherPrinterModel;
   labelSize?: number;
 }
 

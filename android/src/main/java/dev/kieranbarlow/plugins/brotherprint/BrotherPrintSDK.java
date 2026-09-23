@@ -75,7 +75,7 @@ public class BrotherPrintSDK {
         }
 
         for (Channel channel : result.getChannels()) {
-            String serialNumber = getChannelExtraInfo(channel, Channel.ExtraInfoKey.SerialNubmer);
+            String serialNumber = getChannelExtraInfo(channel, Channel.ExtraInfoKey.SerialNumber);
             printers.put(firstNonEmpty(serialNumber, channel.getChannelInfo()));
         }
 
@@ -163,14 +163,22 @@ public class BrotherPrintSDK {
     }
 
     private PrintJobSpec buildSpec(PluginCall call) {
-        String printMethod = call.getString("printMethod", "wifi");
+        String printMethod = call.getString("printMethod");
         String deviceIdentifier = call.getString("deviceIdentifier");
         String base64String = call.getString("base64String", "");
-        String model = call.getString("model", "QL-820NWB");
+        String model = call.getString("model");
         Integer labelSize = call.getInt("labelSize", 62);
+
+        if (!"wifi".equalsIgnoreCase(printMethod) && !"bluetooth".equalsIgnoreCase(printMethod)) {
+            throw new IllegalArgumentException("printMethod must be either 'wifi' or 'bluetooth'.");
+        }
 
         if (deviceIdentifier == null || deviceIdentifier.isEmpty()) {
             throw new IllegalArgumentException("deviceIdentifier is required.");
+        }
+
+        if (model != null && !"QL-810W".equals(model) && !"QL-820NWB".equals(model)) {
+            throw new IllegalArgumentException("model must be either 'QL-810W' or 'QL-820NWB'.");
         }
 
         return new PrintJobSpec(printMethod, deviceIdentifier, base64String, model, labelSize);
@@ -190,8 +198,32 @@ public class BrotherPrintSDK {
     }
 
     private QLPrintSettings buildQlSettings(Context context, PrintJobSpec spec, PrinterDriver driver, File imageFile) {
-        QLPrintSettings settings = new QLPrintSettings(mapModel(spec.model));
-        settings.setLabelSize(resolveLabelSize(driver, spec));
+        PrinterModel printerModel = mapModel(spec.model);
+        QLPrintSettings.LabelSize labelSize = mapLabelSize(spec.labelSize);
+
+        try {
+            GetStatusResult result = driver.getPrinterStatus();
+            if (
+                result != null &&
+                result.getError() != null &&
+                result.getError().getCode() != null &&
+                "NoError".equals(result.getError().getCode().name()) &&
+                result.getPrinterStatus() != null
+            ) {
+                PrinterStatus printerStatus = result.getPrinterStatus();
+                if (printerStatus.getModel() != null) {
+                    printerModel = printerStatus.getModel();
+                }
+                if (printerStatus.getMediaInfo() != null && printerStatus.getMediaInfo().getQLLabelSize() != null) {
+                    labelSize = printerStatus.getMediaInfo().getQLLabelSize();
+                }
+            }
+        } catch (Exception ignored) {
+            // Fall back to explicitly configured values when status detection is unavailable.
+        }
+
+        QLPrintSettings settings = new QLPrintSettings(printerModel);
+        settings.setLabelSize(labelSize);
         settings.setAutoCut(true);
         settings.setCutAtEnd(true);
         settings.setHalftone(PrintImageSettings.Halftone.ErrorDiffusion);
@@ -224,34 +256,18 @@ public class BrotherPrintSDK {
         settings.setPrintOrientation(orientation);
     }
 
-    private QLPrintSettings.LabelSize resolveLabelSize(PrinterDriver driver, PrintJobSpec spec) {
-        try {
-            GetStatusResult result = driver.getPrinterStatus();
-            if (
-                result != null &&
-                result.getError() != null &&
-                result.getError().getCode() != null &&
-                "NoError".equals(result.getError().getCode().name()) &&
-                result.getPrinterStatus() != null &&
-                result.getPrinterStatus().getMediaInfo() != null &&
-                result.getPrinterStatus().getMediaInfo().getQLLabelSize() != null
-            ) {
-                return result.getPrinterStatus().getMediaInfo().getQLLabelSize();
-            }
-        } catch (Exception ignored) {
-            // Fall back to the configured label size when status/media detection is unavailable.
+    private PrinterModel mapModel(String model) {
+        if (model == null) {
+            return PrinterModel.QL_820NWB;
         }
 
-        return mapLabelSize(spec.labelSize);
-    }
-
-    private PrinterModel mapModel(String model) {
         switch (model) {
             case "QL-810W":
                 return PrinterModel.QL_810W;
             case "QL-820NWB":
-            default:
                 return PrinterModel.QL_820NWB;
+            default:
+                throw new IllegalArgumentException("Unsupported printer model: " + model);
         }
     }
 
@@ -290,7 +306,7 @@ public class BrotherPrintSDK {
 
         for (Channel channel : result.getChannels()) {
             String channelInfo = channel.getChannelInfo();
-            String serialNumber = getChannelExtraInfo(channel, Channel.ExtraInfoKey.SerialNubmer);
+            String serialNumber = getChannelExtraInfo(channel, Channel.ExtraInfoKey.SerialNumber);
             String macAddress = getChannelExtraInfo(channel, Channel.ExtraInfoKey.MACAddress);
             String bluetoothAlias = getChannelExtraInfo(channel, Channel.ExtraInfoKey.BluetoothAlias);
 
