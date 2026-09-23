@@ -18,35 +18,46 @@ This plugin was developed for personal use, but feel free to use it if it fits y
 ## Installation
 
 ```bash
-npm install brother-print
-npx cap sync
+npm install github:Lesar-UK/brother-print#v0.0.16
 ```
 
 ## Android Setup
 
 This package does not distribute Brother's proprietary Android SDK. The AAR cannot be restored from Git alone because Brother requires developers to accept its licence before downloading it.
 
-After a fresh clone or machine rebuild:
+After installing the package or rebuilding `node_modules`:
 
-1. Download Brother Print SDK for Android 4.13.2 from the Brother Developer Center.
+1. Download Brother Print SDK for Android 4.13.2 from the [Brother Developer Center](https://support.brother.com/g/s/es/dev/en/mobilesdk/download/index.html).
 2. Extract the download and locate `libs/BrotherPrintLibrary.aar`.
-3. Copy it into this repository using:
+3. Copy it into the installed package using:
 
 ```bash
-mkdir -p android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2
+mkdir -p node_modules/brother-print/android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2
 cp /path/to/BrotherPrintLibrary.aar \
-  android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.aar
+  node_modules/brother-print/android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.aar
 ```
 
 The final directory must contain both files:
 
 ```text
-android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/
+node_modules/brother-print/android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/
 ├── BrotherPrintLibrary-4.13.2.aar
 └── BrotherPrintLibrary-4.13.2.pom
 ```
 
-The AAR is intentionally ignored by Git. Keep the original SDK download in approved private storage so a new development machine or CI environment can be restored without relying on this working copy.
+Then sync the Android project:
+
+```bash
+npx cap sync android
+```
+
+The AAR must be copied again after deleting `node_modules`, running a clean `npm ci`, or upgrading this package. Keep the original SDK download in approved private storage so a new development machine or CI environment can be restored.
+
+When developing this plugin directly, use the equivalent path under the repository instead of `node_modules/brother-print`:
+
+```text
+android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.aar
+```
 
 The Android plugin manifest declares the permissions required for WiFi and Bluetooth printing:
 
