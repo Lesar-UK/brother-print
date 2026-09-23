@@ -1,6 +1,6 @@
 {
   "name": "brother-print",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Print to a Brother label printer via the Brother SDK",
   "readme": "README.md",
   "main": "dist/plugin.cjs.js",
@@ -9,6 +9,7 @@
   "unpkg": "dist/plugin.js",
   "files": [
     "android/src/main/",
+    "android/libs/maven/com/brother/sdk/BrotherPrintLibrary/4.13.2/BrotherPrintLibrary-4.13.2.pom",
     "android/build.gradle",
     "dist/",
     "ios/Sources",
@@ -20,10 +21,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kieranbarlow/brother-print.git"
+    "url": "git+https://github.com/Lesar-UK/brother-print.git"
   },
   "bugs": {
-    "url": "https://github.com/kieranbarlow/brother-print/issues"
+    "url": "https://github.com/Lesar-UK/brother-print/issues"
   },
   "keywords": [
     "capacitor",
@@ -31,10 +32,9 @@
     "native"
   ],
   "scripts": {
-    "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
+    "verify": "npm run lint && npm run verify:ios && npm run verify:android && npm run build",
     "verify:ios": "xcodebuild -scheme BrotherPrint -destination generic/platform=iOS",
-    "verify:android": "cd android && ./gradlew clean build test && cd ..",
-    "verify:web": "npm run build",
+    "verify:android": "./android/gradlew -p android clean build test",
     "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
     "eslint": "eslint . --ext ts",
@@ -44,7 +44,7 @@
     "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@capacitor/android": "^6.0.0",

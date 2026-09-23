@@ -2,14 +2,21 @@ import XCTest
 @testable import BrotherPrintPlugin
 
 class BrotherPrintTests: XCTestCase {
-    func testEcho() {
-        // This is an example of a functional test case for a plugin.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-
+    func testKnownErrorCode() {
         let implementation = BrotherPrint()
-        let value = "Hello, World!"
-        let result = implementation.echo(value)
+        XCTAssertEqual(implementation.getErrorCode(for: 0), "Ready")
+        XCTAssertEqual(implementation.getErrorCode(for: 4), "Paper Jam")
+    }
 
-        XCTAssertEqual(value, result)
+    func testKnownPrinterModel() {
+        let implementation = BrotherPrint()
+        XCTAssertEqual(implementation.printerModelName(for: 28), "QL-810W")
+        XCTAssertEqual(implementation.printerModelName(for: 29), "QL-820NWB")
+    }
+
+    func testUnknownValues() {
+        let implementation = BrotherPrint()
+        XCTAssertEqual(implementation.getErrorCode(for: -1), "Unknown error")
+        XCTAssertEqual(implementation.printerModelName(for: -1), "Unknown Model")
     }
 }

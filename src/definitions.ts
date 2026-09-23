@@ -1,7 +1,38 @@
+export type BrotherPrintMethod = 'wifi' | 'bluetooth';
+export type BrotherPrinterModel = 'QL-810W' | 'QL-820NWB';
+
+export interface PrinterSearchResult {
+  printers: string[];
+}
+
+export interface PrintOptions {
+  printMethod: BrotherPrintMethod;
+  deviceIdentifier: string;
+  base64String: string;
+  model?: BrotherPrinterModel;
+  labelSize?: number;
+}
+
+export interface PrintResult {
+  message: string;
+}
+
+export interface PrinterStatus {
+  model?: string;
+  statusCode?: number | string;
+  statusMessage?: string;
+  media?: string;
+  battery?: string;
+}
+
+export interface PrinterStatusResult {
+  status: PrinterStatus;
+}
+
 export interface BrotherPrintPlugin {
-  searchWifiPrinters(): Promise<{ printers: string[] }>;
-  searchBluetoothPrinters(): Promise<{ printers: string[] }>;
-  printImage(): Promise<{ message: string }>;
-  printPDF(): Promise<{ message: string }>;
-  checkPrinterStatus(): Promise<{ status: string[] }>;
+  searchWifiPrinters(): Promise<PrinterSearchResult>;
+  searchBluetoothPrinters(): Promise<PrinterSearchResult>;
+  printImage(options: PrintOptions): Promise<PrintResult>;
+  printPDF(options: PrintOptions): Promise<PrintResult>;
+  checkPrinterStatus(options: Omit<PrintOptions, 'base64String'>): Promise<PrinterStatusResult>;
 }

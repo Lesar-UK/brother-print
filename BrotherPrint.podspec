@@ -11,8 +11,9 @@ Pod::Spec.new do |s|
   s.author = package['author']
   s.source = { :git => package['repository']['url'], :tag => s.version.to_s }
   s.source_files = 'ios/Sources/**/*.{swift,h,m,c,cc,mm,cpp}'
-  s.ios.deployment_target  = '13.0'
+  s.ios.deployment_target = '17.0'
+  s.vendored_frameworks = 'ios/Frameworks/BRLMPrinterKit.xcframework'
+  s.frameworks = 'ExternalAccessory', 'CoreBluetooth'
   s.dependency 'Capacitor'
-  s.dependency 'BRLMPrinterKit', '~> 4.7'
   s.swift_version = '5.1'
 end

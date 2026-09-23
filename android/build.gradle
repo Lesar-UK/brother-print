@@ -17,11 +17,15 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+def brotherSdkVersion = '4.13.2'
+def brotherMavenRepo = file('libs/maven')
+def brotherPrintLibrary = file("libs/maven/com/brother/sdk/BrotherPrintLibrary/${brotherSdkVersion}/BrotherPrintLibrary-${brotherSdkVersion}.aar")
+
 android {
     namespace "dev.kieranbarlow.plugins.brotherprint"
     compileSdk project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 34
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
+        minSdkVersion project.hasProperty('minSdkVersion') ? Math.max(rootProject.ext.minSdkVersion as int, 26) : 26
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 34
         versionCode 1
         versionName "1.0"
@@ -45,11 +49,24 @@ android {
 repositories {
     google()
     mavenCentral()
+    maven {
+        url = brotherMavenRepo
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
 }
 
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    if (!brotherPrintLibrary.exists()) {
+        throw new GradleException(
+            "BrotherPrintLibrary.aar is required. Copy Brother's Android SDK AAR to " +
+            "${brotherPrintLibrary} before building Android."
+        )
+    }
+
+    implementation "com.brother.sdk:BrotherPrintLibrary:${brotherSdkVersion}@aar"
     implementation project(':capacitor-android')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     testImplementation "junit:junit:$junitVersion"

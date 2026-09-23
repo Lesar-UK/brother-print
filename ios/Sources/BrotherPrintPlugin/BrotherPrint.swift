@@ -1,8 +1,13 @@
 import Foundation
 import BRLMPrinterKit
 import Capacitor
+import CoreBluetooth
 
-@objc public class BrotherPrint: CAPPlugin {
+@objc public class BrotherPrint: CAPPlugin, CBCentralManagerDelegate {
+
+    private var bluetoothCentralManager: CBCentralManager?
+    private var pendingBluetoothSearchCalls: [CAPPluginCall] = []
+    private var bluetoothAuthorizationScanStarted = false
 
     // Function to print a base64 image
     @objc public func printImage(_ call: CAPPluginCall) {
@@ -173,16 +178,97 @@ import Capacitor
 
     // Function to search for Bluetooth printers
     @objc public func searchBluetoothPrinters(_ call: CAPPluginCall) {
-        let channels = BRLMPrinterSearcher.startBluetoothSearch().channels
-        var resultList: [String] = []
+        DispatchQueue.main.async {
+            self.pendingBluetoothSearchCalls.append(call)
 
-        channels.forEach { channel in
-            if let extraInfo = channel.extraInfo {
-                resultList.append(extraInfo[BRLMChannelExtraInfoKeySerialNumber] as! String)
+            if let centralManager = self.bluetoothCentralManager {
+                self.handleBluetoothState(centralManager)
+                return
             }
-        }
 
-        call.resolve(["printers": resultList])
+            self.bluetoothCentralManager = CBCentralManager(
+                delegate: self,
+                queue: .main,
+                options: [CBCentralManagerOptionShowPowerAlertKey: true]
+            )
+        }
+    }
+
+    public func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        handleBluetoothState(central)
+    }
+
+    private func handleBluetoothState(_ central: CBCentralManager) {
+        guard !pendingBluetoothSearchCalls.isEmpty else { return }
+
+        switch CBManager.authorization {
+        case .notDetermined:
+            // Core Bluetooth has no explicit permission-request API. Starting a scan
+            // causes iOS to present the prompt described by the app's plist entry.
+            switch central.state {
+            case .poweredOn:
+                guard !bluetoothAuthorizationScanStarted else { return }
+                bluetoothAuthorizationScanStarted = true
+                central.scanForPeripherals(withServices: nil)
+            case .poweredOff:
+                rejectPendingBluetoothSearches("Bluetooth is turned off")
+            case .unsupported:
+                rejectPendingBluetoothSearches("Bluetooth is not supported on this device")
+            case .unauthorized:
+                rejectPendingBluetoothSearches("Bluetooth access is unauthorized")
+            case .resetting, .unknown:
+                // Wait for centralManagerDidUpdateState to provide a stable state.
+                return
+            @unknown default:
+                rejectPendingBluetoothSearches("Bluetooth is unavailable")
+            }
+        case .restricted:
+            rejectPendingBluetoothSearches(
+                "Bluetooth access is restricted on this device"
+            )
+        case .denied:
+            rejectPendingBluetoothSearches(
+                "Bluetooth permission is denied. Enable it for ProVisit in Settings > Privacy & Security > Bluetooth"
+            )
+        case .allowedAlways:
+            bluetoothAuthorizationScanStarted = false
+            if central.isScanning {
+                central.stopScan()
+            }
+
+            switch central.state {
+            case .poweredOn:
+                resolvePendingBluetoothSearches()
+            case .poweredOff:
+                rejectPendingBluetoothSearches("Bluetooth is turned off")
+            case .unsupported:
+                rejectPendingBluetoothSearches("Bluetooth is not supported on this device")
+            case .unauthorized:
+                rejectPendingBluetoothSearches("Bluetooth access is unauthorized")
+            case .resetting, .unknown:
+                // Wait for centralManagerDidUpdateState to provide a stable state.
+                return
+            @unknown default:
+                rejectPendingBluetoothSearches("Bluetooth is unavailable")
+            }
+        @unknown default:
+            rejectPendingBluetoothSearches("Bluetooth authorization status is unknown")
+        }
+    }
+
+    private func rejectPendingBluetoothSearches(_ message: String) {
+        let calls = pendingBluetoothSearchCalls
+        pendingBluetoothSearchCalls.removeAll()
+        calls.forEach { $0.reject(message) }
+    }
+
+    private func resolvePendingBluetoothSearches() {
+        let resultList = BRLMPrinterSearcher.startBluetoothSearch().channels.compactMap { channel in
+            channel.extraInfo?[BRLMChannelExtraInfoKeySerialNumber] as? String
+        }
+        let calls = pendingBluetoothSearchCalls
+        pendingBluetoothSearchCalls.removeAll()
+        calls.forEach { $0.resolve(["printers": resultList]) }
     }
 
     // Function to check the status of a printer
